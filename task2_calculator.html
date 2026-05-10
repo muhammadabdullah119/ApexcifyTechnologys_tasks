@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    min-height:100vh; background:#0d0d0d;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Exo 2', sans-serif;
+    background-image: radial-gradient(circle at 30% 40%, rgba(0,255,136,0.06) 0%, transparent 60%),
+                      radial-gradient(circle at 70% 80%, rgba(0,180,255,0.05) 0%, transparent 50%);
+  }
+  .calc-wrapper {
+    position:relative;
+  }
+  .calc-glow {
+    position:absolute; inset:-20px; background:rgba(0,255,136,0.05);
+    border-radius:20px; filter:blur(30px); pointer-events:none;
+  }
+  .calculator {
+    background:#111; border:1px solid rgba(0,255,136,0.2);
+    border-radius:16px; padding:24px; width:340px;
+    box-shadow: 0 0 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+    position:relative; overflow:hidden;
+  }
+  .calculator::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:1px;
+    background: linear-gradient(90deg, transparent, rgba(0,255,136,0.5), transparent);
+  }
+
+  /* DISPLAY */
+  .display {
+    background:#0a0a0a; border:1px solid rgba(0,255,136,0.15);
+    border-radius:8px; padding:16px 20px 12px; margin-bottom:20px;
+    min-height:100px; display:flex; flex-direction:column; justify-content:flex-end; align-items:flex-end;
+    overflow:hidden; position:relative;
+  }
+  .display::after {
+    content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+    background: linear-gradient(90deg, transparent, rgba(0,255,136,0.3), transparent);
+  }
+  .expression {
+    font-family:'Share Tech Mono', monospace; font-size:0.85rem;
+    color:rgba(0,255,136,0.4); margin-bottom:8px; min-height:20px;
+    word-break:break-all; text-align:right;
+  }
+  .result {
+    font-family:'Share Tech Mono', monospace; font-size:2.4rem; font-weight:400;
+    color:#00ff88; text-shadow:0 0 20px rgba(0,255,136,0.6);
+    word-break:break-all; text-align:right; transition:all 0.2s;
+    line-height:1.2;
+  }
+  .result.error { color:#ff4466; text-shadow:0 0 20px rgba(255,68,102,0.6); font-size:1.4rem; }
+  .result.animate { transform:scale(1.05); }
+
+  /* KEYBOARD HINT */
+  .keyboard-hint {
+    text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.2);
+    margin-bottom:16px; letter-spacing:1px;
+  }
+
+  /* BUTTONS */
+  .buttons { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .btn {
+    height:64px; border:none; border-radius:8px; font-size:1.1rem; font-weight:600;
+    cursor:pointer; transition:all 0.15s; position:relative; overflow:hidden;
+    font-family:'Exo 2', sans-serif; letter-spacing:0.5px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn::after {
+    content:''; position:absolute; inset:0; background:white; opacity:0;
+    transition:opacity 0.3s;
+  }
+  .btn:active::after { opacity:0.1; }
+  .btn:active { transform:scale(0.94); }
+
+  /* RIPPLE */
+  .btn .ripple {
+    position:absolute; border-radius:50%; background:rgba(255,255,255,0.2);
+    transform:scale(0); animation:rippleAnim 0.5s ease-out;
+    pointer-events:none;
+  }
+  @keyframes rippleAnim { to { transform:scale(4); opacity:0; } }
+
+  /* BUTTON TYPES */
+  .btn-num {
+    background:#1a1a1a; color:#e0e0e0; border:1px solid rgba(255,255,255,0.07);
+  }
+  .btn-num:hover { background:#222; color:#fff; border-color:rgba(255,255,255,0.15); box-shadow:0 0 15px rgba(255,255,255,0.05); }
+
+  .btn-op {
+    background:rgba(0,180,255,0.12); color:#00b4ff; border:1px solid rgba(0,180,255,0.25);
+  }
+  .btn-op:hover { background:rgba(0,180,255,0.2); box-shadow:0 0 20px rgba(0,180,255,0.2); }
+
+  .btn-eq {
+    background: linear-gradient(135deg, #00ff88, #00cc66); color:#000; font-size:1.4rem;
+    grid-column:span 2; font-weight:700; border:none;
+  }
+  .btn-eq:hover { filter:brightness(1.1); box-shadow:0 0 30px rgba(0,255,136,0.4); }
+
+  .btn-clear {
+    background:rgba(255,68,102,0.12); color:#ff4466; border:1px solid rgba(255,68,102,0.25);
+  }
+  .btn-clear:hover { background:rgba(255,68,102,0.22); box-shadow:0 0 20px rgba(255,68,102,0.2); }
+
+  .btn-fn {
+    background:rgba(255,180,0,0.1); color:#ffb400; border:1px solid rgba(255,180,0,0.2);
+    font-size:0.95rem;
+  }
+  .btn-fn:hover { background:rgba(255,180,0,0.18); box-shadow:0 0 20px rgba(255,180,0,0.15); }
+
+  /* HISTORY */
+  .history-toggle {
+    text-align:center; margin-top:16px;
+    font-size:0.75rem; color:rgba(0,255,136,0.4); cursor:pointer;
+    letter-spacing:1px; text-transform:uppercase; transition:color 0.3s;
+  }
+  .history-toggle:hover { color:rgba(0,255,136,0.8); }
+  .history {
+    display:none; max-height:150px; overflow-y:auto;
+    border-top:1px solid rgba(0,255,136,0.1); margin-top:12px; padding-top:12px;
+  }
+  .history.open { display:block; }
+  .history-item {
+    font-family:'Share Tech Mono', monospace; font-size:0.8rem;
+    color:rgba(255,255,255,0.3); text-align:right; padding:4px 0;
+    cursor:pointer; transition:color 0.2s;
+  }
+  .history-item:hover { color:rgba(0,255,136,0.7); }
+  .history::-webkit-scrollbar { width:4px; }
+  .history::-webkit-scrollbar-track { background:transparent; }
+  .history::-webkit-scrollbar-thumb { background:rgba(0,255,136,0.3); border-radius:2px; }
+</style>
+</head>
+<body>
+<div class="calc-wrapper">
+  <div class="calc-glow"></div>
+  <div class="calculator">
+    <div class="display">
+      <div class="expression" id="expression"></div>
+      <div class="result" id="result">0</div>
+    </div>
+    <div class="keyboard-hint">⌨️ Keyboard Supported</div>
+    <div class="buttons">
+      <button class="btn btn-clear" onclick="clearAll()">AC</button>
+      <button class="btn btn-fn" onclick="toggleSign()">+/−</button>
+      <button class="btn btn-fn" onclick="percent()">%</button>
+      <button class="btn btn-op" onclick="setOp('/')">÷</button>
+
+      <button class="btn btn-num" onclick="inputNum('7')">7</button>
+      <button class="btn btn-num" onclick="inputNum('8')">8</button>
+      <button class="btn btn-num" onclick="inputNum('9')">9</button>
+      <button class="btn btn-op" onclick="setOp('*')">×</button>
+
+      <button class="btn btn-num" onclick="inputNum('4')">4</button>
+      <button class="btn btn-num" onclick="inputNum('5')">5</button>
+      <button class="btn btn-num" onclick="inputNum('6')">6</button>
+      <button class="btn btn-op" onclick="setOp('-')">−</button>
+
+      <button class="btn btn-num" onclick="inputNum('1')">1</button>
+      <button class="btn btn-num" onclick="inputNum('2')">2</button>
+      <button class="btn btn-num" onclick="inputNum('3')">3</button>
+      <button class="btn btn-op" onclick="setOp('+')">+</button>
+
+      <button class="btn btn-num" onclick="inputNum('0')" style="grid-column:span 2;font-size:1.1rem">0</button>
+      <button class="btn btn-num" onclick="inputDot()">.</button>
+      <button class="btn btn-eq" onclick="calculate()">=</button>
+    </div>
+    <div class="history-toggle" onclick="toggleHistory()">▾ History</div>
+    <div class="history" id="history"></div>
+  </div>
+</div>
+
+<script>
+  let current = '0', prev = '', operator = '', shouldReset = false;
+  const historyArr = [];
+
+  function updateDisplay(val, expr) {
+    const el = document.getElementById('result');
+    el.textContent = val;
+    el.classList.remove('error','animate');
+    if (expr !== undefined) document.getElementById('expression').textContent = expr;
+    void el.offsetWidth;
+    el.classList.add('animate');
+    setTimeout(() => el.classList.remove('animate'), 200);
+  }
+
+  function ripple(e) {
+    const btn = e.currentTarget;
+    const r = document.createElement('span');
+    r.classList.add('ripple');
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+    btn.appendChild(r);
+    setTimeout(() => r.remove(), 500);
+  }
+  document.querySelectorAll('.btn').forEach(b => b.addEventListener('click', ripple));
+
+  function inputNum(n) {
+    if (shouldReset) { current = n; shouldReset = false; }
+    else { current = current === '0' ? n : current + n; }
+    if (current.length > 14) return;
+    updateDisplay(current);
+  }
+
+  function inputDot() {
+    if (shouldReset) { current = '0.'; shouldReset = false; }
+    else if (!current.includes('.')) current += '.';
+    updateDisplay(current);
+  }
+
+  function setOp(op) {
+    if (operator && !shouldReset) calculate(true);
+    prev = current; operator = op;
+    shouldReset = true;
+    const opSymbols = {'+':'+', '-':'−', '*':'×', '/':'÷'};
+    updateDisplay(current, current + ' ' + opSymbols[op]);
+  }
+
+  function calculate(silent=false) {
+    if (!operator || !prev) return;
+    const a = parseFloat(prev), b = parseFloat(current);
+    let res;
+    if (operator === '/' && b === 0) {
+      document.getElementById('result').textContent = 'Cannot ÷ 0';
+      document.getElementById('result').classList.add('error');
+      operator = ''; return;
+    }
+    switch(operator) {
+      case '+': res = a + b; break;
+      case '-': res = a - b; break;
+      case '*': res = a * b; break;
+      case '/': res = a / b; break;
+    }
+    const opSym = {'+':'+', '-':'−', '*':'×', '/':'÷'};
+    const expr = `${prev} ${opSym[operator]} ${current} =`;
+    const resStr = parseFloat(res.toFixed(10)).toString();
+    if (!silent) {
+      historyArr.unshift(expr + ' ' + resStr);
+      if (historyArr.length > 20) historyArr.pop();
+      renderHistory();
+      updateDisplay(resStr, expr);
+    }
+    current = resStr; operator = ''; shouldReset = true;
+  }
+
+  function clearAll() {
+    current = '0'; prev = ''; operator = '';
+    updateDisplay('0', '');
+  }
+
+  function toggleSign() {
+    current = (parseFloat(current) * -1).toString();
+    updateDisplay(current);
+  }
+
+  function percent() {
+    current = (parseFloat(current) / 100).toString();
+    updateDisplay(current);
+  }
+
+  function renderHistory() {
+    const h = document.getElementById('history');
+    h.innerHTML = historyArr.map(e => `<div class="history-item" onclick="useHistory('${e.split(' = ')[1]}')">${e}</div>`).join('');
+  }
+
+  function useHistory(val) {
+    current = val; shouldReset = false;
+    updateDisplay(current);
+  }
+
+  function toggleHistory() {
+    document.getElementById('history').classList.toggle('open');
+  }
+
+  // KEYBOARD SUPPORT
+  document.addEventListener('keydown', e => {
+    if (e.key >= '0' && e.key <= '9') inputNum(e.key);
+    else if (e.key === '.') inputDot();
+    else if (e.key === '+') setOp('+');
+    else if (e.key === '-') setOp('-');
+    else if (e.key === '*') setOp('*');
+    else if (e.key === '/') { e.preventDefault(); setOp('/'); }
+    else if (e.key === 'Enter' || e.key === '=') calculate();
+    else if (e.key === 'Escape' || e.key === 'c') clearAll();
+    else if (e.key === 'Backspace') {
+      current = current.length > 1 ? current.slice(0,-1) : '0';
+      updateDisplay(current);
+    }
+    else if (e.key === '%') percent();
+  });
+</script>
+</body>
+</html>
