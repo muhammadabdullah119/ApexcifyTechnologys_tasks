@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopZone — Products</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafaf8; --ink: #111108; --muted: #888880;
+    --accent: #ff3c00; --accent2: #0057ff;
+    --border: #e8e8e3; --card: #ffffff;
+    --tag-bg: #f0f0ec;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--ink); font-family:'Space Grotesk',sans-serif; }
+
+  /* HEADER */
+  header {
+    background:var(--ink); color:white; padding:0 5%;
+    display:flex; align-items:center; justify-content:space-between; height:64px;
+    position:sticky; top:0; z-index:100;
+  }
+  .logo { font-size:1.4rem; font-weight:700; letter-spacing:-1px; }
+  .logo span { color:var(--accent); }
+  .cart-btn {
+    background:var(--accent); color:white; border:none; padding:10px 20px;
+    font-family:'Space Grotesk',sans-serif; font-size:0.85rem; font-weight:700;
+    letter-spacing:1px; cursor:pointer; transition:all 0.3s; text-transform:uppercase;
+    display:flex; align-items:center; gap:8px;
+  }
+  .cart-btn:hover { background:#cc3000; }
+  .cart-count { background:white; color:var(--accent); width:20px; height:20px; border-radius:50%; font-size:0.7rem; display:flex; align-items:center; justify-content:center; font-weight:700; }
+
+  /* HERO BANNER */
+  .hero-banner {
+    background: linear-gradient(135deg, var(--ink) 60%, #2a2a28 100%);
+    padding:60px 5%; display:flex; align-items:center; justify-content:space-between;
+    gap:2rem; flex-wrap:wrap; overflow:hidden; position:relative;
+  }
+  .hero-banner::after { content:'SHOP'; position:absolute; right:-2%; top:50%; transform:translateY(-50%); font-size:12rem; font-weight:800; color:rgba(255,255,255,0.03); letter-spacing:-5px; pointer-events:none; }
+  .banner-text h1 { font-size:clamp(2rem,5vw,3.5rem); font-weight:700; color:white; letter-spacing:-2px; margin-bottom:0.8rem; }
+  .banner-text h1 em { font-style:italic; color:var(--accent); font-family:'Playfair Display',serif; }
+  .banner-text p { color:rgba(255,255,255,0.5); font-size:1rem; max-width:400px; line-height:1.7; }
+  .banner-stats { display:flex; gap:3rem; }
+  .bstat { text-align:center; }
+  .bstat-num { font-size:2.2rem; font-weight:700; color:white; letter-spacing:-2px; display:block; }
+  .bstat-label { font-size:0.75rem; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:2px; }
+
+  /* FILTERS & CONTROLS */
+  .controls-bar {
+    padding:20px 5%; background:white; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+    position:sticky; top:64px; z-index:90;
+  }
+  .filters { display:flex; gap:8px; flex-wrap:wrap; }
+  .filter-chip {
+    padding:8px 18px; background:var(--tag-bg); border:1.5px solid transparent;
+    font-size:0.82rem; font-weight:600; color:var(--muted); cursor:pointer;
+    transition:all 0.25s; border-radius:2px; text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .filter-chip.active { background:var(--ink); color:white; border-color:var(--ink); }
+  .filter-chip:hover:not(.active) { border-color:var(--ink); color:var(--ink); }
+  .sort-wrap { display:flex; align-items:center; gap:8px; }
+  .sort-wrap label { font-size:0.8rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
+  .sort-select {
+    background:white; border:1.5px solid var(--border); padding:8px 12px;
+    font-family:'Space Grotesk',sans-serif; font-size:0.85rem; color:var(--ink);
+    cursor:pointer; outline:none;
+  }
+  .view-toggle { display:flex; gap:4px; }
+  .vbtn { width:36px; height:36px; border:1.5px solid var(--border); background:white; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.9rem; transition:all 0.2s; }
+  .vbtn.active { background:var(--ink); color:white; border-color:var(--ink); }
+
+  /* MAIN LAYOUT */
+  .main { display:flex; gap:0; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width:260px; flex-shrink:0; padding:2rem 1.5rem; border-right:1px solid var(--border);
+    height:calc(100vh - 120px); overflow-y:auto; position:sticky; top:120px;
+  }
+  .sidebar::-webkit-scrollbar { width:3px; }
+  .sidebar::-webkit-scrollbar-thumb { background:var(--border); }
+  .sidebar-section { margin-bottom:2rem; }
+  .sidebar-title { font-size:0.75rem; text-transform:uppercase; letter-spacing:2px; color:var(--muted); margin-bottom:1rem; font-weight:700; }
+  .price-range { width:100%; accent-color:var(--accent); margin-bottom:0.5rem; }
+  .price-display { font-size:0.85rem; color:var(--ink); font-weight:600; }
+  .rating-filter { display:flex; flex-direction:column; gap:6px; }
+  .rcheck { display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.9rem; color:var(--ink); transition:color 0.2s; }
+  .rcheck:hover { color:var(--accent); }
+  .rcheck input { accent-color:var(--accent); }
+  .stars { color:#f5a623; font-size:0.85rem; }
+
+  /* PRODUCT GRID */
+  .products-area { flex:1; padding:2rem; }
+  .result-info { font-size:0.85rem; color:var(--muted); margin-bottom:1.5rem; }
+  .result-info span { color:var(--ink); font-weight:700; }
+
+  .product-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1.5rem; }
+  .product-grid.list-view { grid-template-columns:1fr; }
+
+  /* PRODUCT CARD */
+  .product-card {
+    background:var(--card); border:1.5px solid var(--border); overflow:hidden;
+    transition:all 0.35s; position:relative; cursor:pointer;
+  }
+  .product-card:hover { border-color:var(--ink); transform:translateY(-4px); box-shadow:0 20px 40px rgba(0,0,0,0.1); }
+  .product-card .badge {
+    position:absolute; top:12px; left:12px; z-index:2;
+    background:var(--accent); color:white; font-size:0.68rem; padding:4px 10px;
+    font-weight:700; text-transform:uppercase; letter-spacing:1px;
+  }
+  .product-card .wish { position:absolute; top:12px; right:12px; z-index:2; background:white; border:none; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:0.9rem; transition:all 0.3s; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+  .product-card .wish:hover { background:var(--accent); }
+  .product-img { aspect-ratio:1; background: linear-gradient(135deg, #f5f5f0, #ebebea); display:flex; align-items:center; justify-content:center; font-size:4.5rem; overflow:hidden; transition:transform 0.4s; }
+  .product-card:hover .product-img { transform:scale(1.04); }
+  .product-body { padding:1.2rem; }
+  .product-cat { font-size:0.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:6px; }
+  .product-name { font-size:1.05rem; font-weight:700; letter-spacing:-0.3px; margin-bottom:4px; line-height:1.3; }
+  .product-owner { font-size:0.8rem; color:var(--muted); margin-bottom:8px; }
+  .product-owner span { color:var(--accent2); font-weight:600; cursor:pointer; }
+  .product-owner span:hover { text-decoration:underline; }
+  .product-rating { display:flex; align-items:center; gap:6px; margin-bottom:12px; }
+  .product-rating .stars { font-size:0.8rem; }
+  .product-rating .rc { font-size:0.78rem; color:var(--muted); }
+  .product-footer { display:flex; align-items:center; justify-content:space-between; }
+  .product-price { font-size:1.3rem; font-weight:700; letter-spacing:-0.5px; }
+  .product-price .old { font-size:0.85rem; color:var(--muted); text-decoration:line-through; font-weight:400; margin-left:6px; }
+  .add-btn {
+    background:var(--ink); color:white; border:none; padding:10px 16px;
+    font-size:0.78rem; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+    cursor:pointer; transition:all 0.3s; font-family:'Space Grotesk',sans-serif;
+  }
+  .add-btn:hover { background:var(--accent); }
+  .add-btn.added { background:var(--accent2); }
+
+  /* LIST VIEW */
+  .list-view .product-card { display:flex; }
+  .list-view .product-img { aspect-ratio:auto; width:180px; flex-shrink:0; }
+  .list-view .product-body { flex:1; display:flex; flex-direction:column; justify-content:center; }
+
+  /* SINGLE PRODUCT VIEWER (NEXT/PREV) */
+  .product-viewer { background:white; border:1.5px solid var(--border); padding:2rem; margin-bottom:2rem; display:none; }
+  .product-viewer.active { display:flex; gap:3rem; flex-wrap:wrap; align-items:flex-start; }
+  .viewer-img { width:200px; height:200px; background: linear-gradient(135deg, #f5f5f0, #ebebea); display:flex; align-items:center; justify-content:center; font-size:7rem; flex-shrink:0; border:1.5px solid var(--border); }
+  .viewer-info { flex:1; min-width:250px; }
+  .viewer-info h2 { font-size:1.8rem; font-weight:700; letter-spacing:-1px; margin-bottom:0.5rem; }
+  .viewer-info .vcat { font-size:0.75rem; text-transform:uppercase; letter-spacing:2px; color:var(--muted); margin-bottom:1rem; }
+  .viewer-info .vowner { font-size:0.9rem; color:var(--ink); margin-bottom:0.5rem; } 
+  .viewer-info .vowner b { color:var(--accent2); }
+  .viewer-info .vprice { font-size:2rem; font-weight:700; letter-spacing:-1px; color:var(--accent); margin:1rem 0; }
+  .viewer-info p { color:var(--muted); line-height:1.8; font-size:0.92rem; margin-bottom:1.5rem; }
+  .viewer-nav { display:flex; gap:1rem; align-items:center; }
+  .vnav-btn { background:var(--ink); color:white; border:none; padding:12px 24px; font-family:'Space Grotesk',sans-serif; font-size:0.85rem; font-weight:700; letter-spacing:1px; cursor:pointer; transition:all 0.3s; text-transform:uppercase; }
+  .vnav-btn:hover { background:var(--accent); }
+  .vnav-count { font-size:0.8rem; color:var(--muted); font-family:monospace; }
+  .viewer-close { position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--muted); transition:color 0.3s; }
+  .viewer-close:hover { color:var(--accent); }
+  .product-viewer { position:relative; }
+
+  /* PAGINATION */
+  .pagination { display:flex; gap:6px; justify-content:center; margin-top:3rem; }
+  .pag-btn { width:40px; height:40px; border:1.5px solid var(--border); background:white; font-family:'Space Grotesk',sans-serif; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s; }
+  .pag-btn.active,.pag-btn:hover { background:var(--ink); color:white; border-color:var(--ink); }
+
+  /* ANIMATIONS */
+  .product-card { animation:fadeUp 0.4s ease both; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .product-card:nth-child(2){animation-delay:0.05s}
+  .product-card:nth-child(3){animation-delay:0.1s}
+  .product-card:nth-child(4){animation-delay:0.15s}
+  .product-card:nth-child(5){animation-delay:0.2s}
+  .product-card:nth-child(6){animation-delay:0.25s}
+
+  /* TOAST */
+  .toast { position:fixed; bottom:2rem; right:2rem; background:var(--ink); color:white; padding:14px 22px; font-size:0.88rem; font-weight:600; z-index:999; transform:translateY(100px); opacity:0; transition:all 0.35s; border-left:3px solid var(--accent); }
+  .toast.show { transform:translateY(0); opacity:1; }
+
+  @media(max-width:768px){
+    .sidebar{display:none}
+    .main{flex-direction:column}
+    .products-area{padding:1rem}
+    .banner-stats{display:none}
+    .list-view .product-card{flex-direction:column}
+    .list-view .product-img{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">SHOP<span>ZONE</span></div>
+  <button class="cart-btn" id="cartBtn">
+    🛒 Cart <span class="cart-count" id="cartCount">0</span>
+  </button>
+</header>
+
+<!-- HERO -->
+<div class="hero-banner">
+  <div class="banner-text">
+    <h1>Discover <em>Premium</em><br>Products</h1>
+    <p>Curated selection of the finest products from top creators around the world.</p>
+  </div>
+  <div class="banner-stats">
+    <div class="bstat"><span class="bstat-num">200+</span><span class="bstat-label">Products</span></div>
+    <div class="bstat"><span class="bstat-num">50+</span><span class="bstat-label">Brands</span></div>
+    <div class="bstat"><span class="bstat-num">10K+</span><span class="bstat-label">Happy Buyers</span></div>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls-bar">
+  <div class="filters" id="filters">
+    <button class="filter-chip active" onclick="filterProducts('all',this)">All</button>
+    <button class="filter-chip" onclick="filterProducts('electronics',this)">Electronics</button>
+    <button class="filter-chip" onclick="filterProducts('fashion',this)">Fashion</button>
+    <button class="filter-chip" onclick="filterProducts('home',this)">Home</button>
+    <button class="filter-chip" onclick="filterProducts('sports',this)">Sports</button>
+    <button class="filter-chip" onclick="filterProducts('books',this)">Books</button>
+  </div>
+  <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
+    <div class="sort-wrap">
+      <label>Sort:</label>
+      <select class="sort-select" onchange="sortProducts(this.value)">
+        <option value="default">Featured</option>
+        <option value="price-low">Price: Low to High</option>
+        <option value="price-high">Price: High to Low</option>
+        <option value="rating">Highest Rated</option>
+      </select>
+    </div>
+    <div class="view-toggle">
+      <button class="vbtn active" onclick="setView('grid',this)" title="Grid View">⊞</button>
+      <button class="vbtn" onclick="setView('list',this)" title="List View">☰</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Price Range</div>
+      <input type="range" class="price-range" id="priceRange" min="0" max="1000" value="1000" oninput="updatePrice(this.value)">
+      <div class="price-display">Up to $<span id="priceVal">1000</span></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Min Rating</div>
+      <div class="rating-filter">
+        <label class="rcheck"><input type="radio" name="rating" value="0" checked onchange="filterRating(0)"> <span class="stars">★★★★★</span> All</label>
+        <label class="rcheck"><input type="radio" name="rating" value="4" onchange="filterRating(4)"> <span class="stars">★★★★</span> 4+</label>
+        <label class="rcheck"><input type="radio" name="rating" value="3" onchange="filterRating(3)"> <span class="stars">★★★</span> 3+</label>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Quick Actions</div>
+      <button onclick="openViewer(0)" style="width:100%;background:var(--ink);color:white;border:none;padding:12px;font-family:'Space Grotesk',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;transition:background 0.3s" onmouseover="this.style.background='var(--accent)'" onmouseout="this.style.background='var(--ink)'">▶ Product Viewer</button>
+    </div>
+  </aside>
+
+  <!-- PRODUCTS -->
+  <div class="products-area">
+    <!-- SINGLE PRODUCT VIEWER -->
+    <div class="product-viewer" id="productViewer">
+      <button class="viewer-close" onclick="closeViewer()">✕</button>
+      <div class="viewer-img" id="viewerImg"></div>
+      <div class="viewer-info">
+        <div class="vcat" id="viewerCat"></div>
+        <h2 id="viewerTitle"></h2>
+        <div class="vowner">By <b id="viewerOwner"></b></div>
+        <div class="vprice" id="viewerPrice"></div>
+        <p id="viewerDesc"></p>
+        <div class="viewer-nav">
+          <button class="vnav-btn" onclick="navigateViewer(-1)">← Prev</button>
+          <span class="vnav-count" id="viewerCount"></span>
+          <button class="vnav-btn" onclick="navigateViewer(1)">Next →</button>
+          <button class="vnav-btn" style="background:var(--accent2);margin-left:auto" onclick="addViewerToCart()">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-info"><span id="resultCount">12</span> products found</div>
+    <div class="product-grid" id="productGrid"></div>
+    <div class="pagination">
+      <button class="pag-btn active">1</button>
+      <button class="pag-btn">2</button>
+      <button class="pag-btn">3</button>
+      <button class="pag-btn">→</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const products = [
+  { id:1, name:'ProBook Laptop 15"', owner:'TechWorld Inc.', price:899, oldPrice:1099, rating:4.7, reviews:234, cat:'electronics', emoji:'💻', badge:'HOT', desc:'Powerful laptop with Intel i7, 16GB RAM, 512GB SSD. Perfect for professionals.' },
+  { id:2, name:'Wireless ANC Headphones', owner:'SoundWave', price:199, oldPrice:299, rating:4.5, reviews:189, cat:'electronics', emoji:'🎧', badge:'SALE', desc:'Premium noise-cancelling headphones with 30hr battery life.' },
+  { id:3, name:'Slim Fit Leather Jacket', owner:'UrbanThreads', price:149, oldPrice:null, rating:4.3, reviews:87, cat:'fashion', emoji:'🧥', badge:null, desc:'Premium genuine leather jacket with slim fit cut. Available in black and brown.' },
+  { id:4, name:'Smart Coffee Maker', owner:'BrewMaster', price:79, oldPrice:99, rating:4.6, reviews:312, cat:'home', emoji:'☕', badge:'NEW', desc:'WiFi-enabled coffee maker with scheduling and 12-cup capacity.' },
+  { id:5, name:'Running Pro Shoes', owner:'SpeedFoot', price:119, oldPrice:159, rating:4.4, reviews:201, cat:'sports', emoji:'👟', badge:'SALE', desc:'Lightweight running shoes with responsive cushioning. Sizes 6-13.' },
+  { id:6, name:'Modern Art of Coding', owner:'CodePress', price:34, oldPrice:null, rating:4.8, reviews:456, cat:'books', emoji:'📚', badge:'BESTSELLER', desc:'Comprehensive guide to modern software development patterns and practices.' },
+  { id:7, name:'4K Smart TV 55"', owner:'VisuMax', price:599, oldPrice:799, rating:4.5, reviews:167, cat:'electronics', emoji:'📺', badge:'HOT', desc:'Ultra HD 4K display with built-in streaming apps and voice control.' },
+  { id:8, name:'Premium Yoga Mat', owner:'ZenFit', price:49, oldPrice:65, rating:4.2, reviews:93, cat:'sports', emoji:'🧘', badge:null, desc:'Non-slip yoga mat with alignment lines. Eco-friendly materials, 6mm thick.' },
+  { id:9, name:'Ceramic Dinner Set', owner:'TableArt', price:89, oldPrice:120, rating:4.6, reviews:78, cat:'home', emoji:'🍽️', badge:'NEW', desc:'Elegant 18-piece ceramic dinner set. Microwave and dishwasher safe.' },
+  { id:10, name:'Classic Trench Coat', owner:'StyleCo', price:189, oldPrice:null, rating:4.1, reviews:55, cat:'fashion', emoji:'🧣', badge:null, desc:'Timeless trench coat in water-resistant fabric. Perfect for all seasons.' },
+  { id:11, name:'Mechanical Keyboard', owner:'TypeCraft', price:129, oldPrice:149, rating:4.9, reviews:521, cat:'electronics', emoji:'⌨️', badge:'TOP RATED', desc:'Cherry MX switches, RGB backlight, aluminum frame. Every keystroke perfected.' },
+  { id:12, name:'Fiction: The Last City', owner:'NovaBooks', price:18, oldPrice:null, rating:4.7, reviews:892, cat:'books', emoji:'📖', badge:null, desc:'Award-winning sci-fi novel about humanity\'s last stand on a dying Earth.' }
+];
+
+let filtered = [...products];
+let currentCat = 'all', maxPrice = 1000, minRating = 0, viewerIdx = 0, cartCount = 0;
+
+function renderProducts() {
+  const grid = document.getElementById('productGrid');
+  grid.innerHTML = '';
+  document.getElementById('resultCount').textContent = filtered.length;
+  filtered.forEach((p, i) => {
+    const stars = '★'.repeat(Math.floor(p.rating)) + '☆'.repeat(5-Math.floor(p.rating));
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.style.animationDelay = (i*0.05) + 's';
+    card.innerHTML = `
+      ${p.badge ? `<div class="badge">${p.badge}</div>` : ''}
+      <button class="wish" onclick="event.stopPropagation();this.textContent=this.textContent==='♥'?'♡':'♥'" title="Wishlist">♡</button>
+      <div class="product-img">${p.emoji}</div>
+      <div class="product-body">
+        <div class="product-cat">${p.cat}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-owner">by <span>${p.owner}</span></div>
+        <div class="product-rating"><span class="stars">${stars}</span><span class="rc">(${p.reviews})</span></div>
+        <div class="product-footer">
+          <div class="product-price">$${p.price}${p.oldPrice ? `<span class="old">$${p.oldPrice}</span>` : ''}</div>
+          <button class="add-btn" id="btn-${p.id}" onclick="event.stopPropagation();addToCart(${p.id})">Add +</button>
+        </div>
+      </div>`;
+    card.addEventListener('click', () => { viewerIdx = products.indexOf(p); openViewer(viewerIdx); });
+    grid.appendChild(card);
+  });
+}
+
+function filterProducts(cat, el) {
+  currentCat = cat;
+  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters() {
+  filtered = products.filter(p =>
+    (currentCat === 'all' || p.cat === currentCat) &&
+    p.price <= maxPrice &&
+    p.rating >= minRating
+  );
+  renderProducts();
+}
+
+function sortProducts(val) {
+  if(val === 'price-low') filtered.sort((a,b) => a.price - b.price);
+  else if(val === 'price-high') filtered.sort((a,b) => b.price - a.price);
+  else if(val === 'rating') filtered.sort((a,b) => b.rating - a.rating);
+  else applyFilters(); return;
+  renderProducts();
+}
+
+function updatePrice(val) {
+  document.getElementById('priceVal').textContent = val;
+  maxPrice = +val; applyFilters();
+}
+
+function filterRating(val) { minRating = val; applyFilters(); }
+
+function setView(type, btn) {
+  document.querySelectorAll('.vbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const grid = document.getElementById('productGrid');
+  if(type === 'list') grid.classList.add('list-view');
+  else grid.classList.remove('list-view');
+}
+
+function addToCart(id) {
+  cartCount++;
+  document.getElementById('cartCount').textContent = cartCount;
+  const btn = document.getElementById('btn-' + id);
+  btn.textContent = 'Added ✓';
+  btn.classList.add('added');
+  setTimeout(() => { btn.textContent = 'Add +'; btn.classList.remove('added'); }, 1500);
+  showToast('Item added to cart! 🛒');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// VIEWER
+function openViewer(idx) {
+  viewerIdx = idx;
+  updateViewer();
+  document.getElementById('productViewer').classList.add('active');
+  document.getElementById('productViewer').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function closeViewer() {
+  document.getElementById('productViewer').classList.remove('active');
+}
+
+function updateViewer() {
+  const p = products[viewerIdx];
+  document.getElementById('viewerImg').textContent = p.emoji;
+  document.getElementById('viewerTitle').textContent = p.name;
+  document.getElementById('viewerCat').textContent = p.cat.toUpperCase();
+  document.getElementById('viewerOwner').textContent = p.owner;
+  document.getElementById('viewerPrice').textContent = '$' + p.price + (p.oldPrice ? ' — was $'+p.oldPrice : '');
+  document.getElementById('viewerDesc').textContent = p.desc;
+  document.getElementById('viewerCount').textContent = `${viewerIdx + 1} / ${products.length}`;
+}
+
+function navigateViewer(dir) {
+  viewerIdx = (viewerIdx + dir + products.length) % products.length;
+  updateViewer();
+}
+
+function addViewerToCart() {
+  cartCount++;
+  document.getElementById('cartCount').textContent = cartCount;
+  showToast(products[viewerIdx].name + ' added to cart! 🛒');
+}
+
+// INIT
+renderProducts();
+</script>
+</body>
+</html>
