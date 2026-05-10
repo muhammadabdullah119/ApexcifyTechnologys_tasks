@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apexcify Technologies</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #00f5ff;
+    --accent: #ff006e;
+    --bg: #020818;
+    --bg2: #050f2a;
+    --text: #e0f0ff;
+    --muted: #7090b0;
+    --card-bg: rgba(0,245,255,0.04);
+    --glow: 0 0 30px rgba(0,245,255,0.3);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; overflow-x: hidden; }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    opacity: 0.4;
+  }
+
+  /* NAVBAR */
+  nav {
+    position: fixed; top:0; width:100%; z-index:100;
+    background: rgba(2,8,24,0.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0,245,255,0.15);
+    padding: 0 5%; display:flex; align-items:center; justify-content:space-between;
+    height: 70px;
+  }
+  .logo {
+    font-family: 'Orbitron', monospace; font-weight:900; font-size:1.4rem;
+    color: var(--primary); text-shadow: var(--glow); letter-spacing:2px;
+  }
+  .logo span { color: var(--accent); }
+  .nav-links { display:flex; gap:2rem; list-style:none; }
+  .nav-links a {
+    color: var(--muted); text-decoration:none; font-size:1rem; font-weight:600;
+    letter-spacing:1px; text-transform:uppercase; transition: color 0.3s, text-shadow 0.3s;
+    position:relative;
+  }
+  .nav-links a::after {
+    content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px;
+    background: var(--primary); transition: width 0.3s;
+  }
+  .nav-links a:hover { color: var(--primary); text-shadow: 0 0 10px var(--primary); }
+  .nav-links a:hover::after { width:100%; }
+  .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; }
+  .hamburger span { width:25px; height:2px; background: var(--primary); transition: 0.3s; }
+
+  /* HERO */
+  .hero {
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    text-align:center; padding: 100px 5% 60px; position:relative; overflow:hidden;
+  }
+  .hero-grid {
+    position:absolute; inset:0; pointer-events:none;
+    background-image: linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridPulse 4s ease-in-out infinite;
+  }
+  @keyframes gridPulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+  .hero-orb {
+    position:absolute; border-radius:50%; filter:blur(80px); pointer-events:none;
+  }
+  .orb1 { width:500px; height:500px; background:rgba(0,245,255,0.08); top:-100px; left:-100px; animation: orbFloat 8s ease-in-out infinite; }
+  .orb2 { width:400px; height:400px; background:rgba(255,0,110,0.06); bottom:-100px; right:-100px; animation: orbFloat 10s ease-in-out infinite reverse; }
+  @keyframes orbFloat { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,30px)} }
+  .hero-content { position:relative; z-index:1; }
+  .hero-badge {
+    display:inline-block; border:1px solid rgba(0,245,255,0.4); padding:6px 18px;
+    font-size:0.8rem; letter-spacing:3px; text-transform:uppercase; color:var(--primary);
+    margin-bottom:2rem; animation: fadeDown 0.8s ease both;
+  }
+  .hero h1 {
+    font-family:'Orbitron',monospace; font-size:clamp(2.5rem,7vw,5.5rem);
+    font-weight:900; line-height:1.1; margin-bottom:1.5rem;
+    animation: fadeUp 1s ease 0.2s both;
+  }
+  .hero h1 .line1 { display:block; color: var(--text); }
+  .hero h1 .line2 {
+    display:block;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .hero p {
+    font-size:1.2rem; color:var(--muted); max-width:600px; margin:0 auto 2.5rem;
+    line-height:1.8; animation: fadeUp 1s ease 0.4s both;
+  }
+  .hero-btns { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; animation: fadeUp 1s ease 0.6s both; }
+  .btn-primary {
+    padding:14px 32px; background:var(--primary); color:var(--bg); font-family:'Orbitron',monospace;
+    font-weight:700; font-size:0.85rem; letter-spacing:2px; text-transform:uppercase;
+    border:none; cursor:pointer; clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+    transition: all 0.3s;
+  }
+  .btn-primary:hover { background:var(--accent); box-shadow:0 0 30px rgba(255,0,110,0.5); transform:translateY(-2px); }
+  .btn-outline {
+    padding:14px 32px; background:transparent; color:var(--primary);
+    font-family:'Orbitron',monospace; font-weight:700; font-size:0.85rem; letter-spacing:2px;
+    text-transform:uppercase; border:1px solid var(--primary); cursor:pointer;
+    transition: all 0.3s;
+  }
+  .btn-outline:hover { background:rgba(0,245,255,0.1); box-shadow:var(--glow); transform:translateY(-2px); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+
+  /* STATS */
+  .stats {
+    padding:60px 5%; background:var(--bg2); border-top:1px solid rgba(0,245,255,0.1); border-bottom:1px solid rgba(0,245,255,0.1);
+  }
+  .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2rem; max-width:1000px; margin:0 auto; text-align:center; }
+  .stat-num { font-family:'Orbitron',monospace; font-size:2.5rem; font-weight:900; color:var(--primary); display:block; }
+  .stat-label { font-size:0.9rem; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-top:0.5rem; }
+
+  /* SECTION */
+  section { padding: 100px 5%; }
+  .section-tag { font-size:0.75rem; letter-spacing:4px; text-transform:uppercase; color:var(--primary); margin-bottom:1rem; }
+  .section-title {
+    font-family:'Orbitron',monospace; font-size:clamp(1.8rem,4vw,2.8rem); font-weight:700;
+    margin-bottom:1rem; line-height:1.2;
+  }
+  .section-sub { color:var(--muted); font-size:1.1rem; max-width:600px; line-height:1.8; }
+  .section-header { margin-bottom:4rem; }
+
+  /* SERVICES */
+  #services { background:var(--bg); }
+  .services-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.5rem; }
+  .service-card {
+    background: var(--card-bg); border:1px solid rgba(0,245,255,0.1);
+    padding:2.5rem; position:relative; overflow:hidden; transition:all 0.4s;
+    clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px));
+  }
+  .service-card::before {
+    content:''; position:absolute; inset:0;
+    background: linear-gradient(135deg, rgba(0,245,255,0.06) 0%, transparent 60%);
+    opacity:0; transition:opacity 0.4s;
+  }
+  .service-card:hover { border-color:rgba(0,245,255,0.4); transform:translateY(-6px); box-shadow:var(--glow); }
+  .service-card:hover::before { opacity:1; }
+  .service-icon { font-size:2.5rem; margin-bottom:1.5rem; }
+  .service-card h3 { font-family:'Orbitron',monospace; font-size:1rem; color:var(--primary); margin-bottom:1rem; letter-spacing:1px; }
+  .service-card p { color:var(--muted); font-size:1rem; line-height:1.7; }
+  .service-num {
+    position:absolute; top:1.5rem; right:1.5rem; font-family:'Orbitron',monospace;
+    font-size:0.7rem; color:rgba(0,245,255,0.2); font-weight:700;
+  }
+
+  /* PORTFOLIO */
+  #portfolio { background:var(--bg2); }
+  .portfolio-nav { display:flex; gap:1rem; margin-bottom:3rem; flex-wrap:wrap; }
+  .filter-btn {
+    padding:8px 20px; background:transparent; border:1px solid rgba(0,245,255,0.2);
+    color:var(--muted); font-family:'Rajdhani',sans-serif; font-size:0.9rem; font-weight:600;
+    letter-spacing:1px; cursor:pointer; transition:all 0.3s; text-transform:uppercase;
+  }
+  .filter-btn.active, .filter-btn:hover { border-color:var(--primary); color:var(--primary); background:rgba(0,245,255,0.05); }
+  .portfolio-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:1.5rem; }
+  .portfolio-item {
+    position:relative; overflow:hidden; cursor:pointer;
+    border:1px solid rgba(0,245,255,0.1); transition:all 0.4s;
+    aspect-ratio: 16/10;
+  }
+  .portfolio-item img { width:100%; height:100%; object-fit:cover; transition:transform 0.5s; }
+  .portfolio-overlay {
+    position:absolute; inset:0; background:rgba(2,8,24,0.9);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    opacity:0; transition:opacity 0.4s; text-align:center; padding:2rem;
+  }
+  .portfolio-item:hover { border-color:var(--primary); box-shadow:var(--glow); }
+  .portfolio-item:hover img { transform:scale(1.08); }
+  .portfolio-item:hover .portfolio-overlay { opacity:1; }
+  .portfolio-overlay h3 { font-family:'Orbitron',monospace; font-size:1rem; color:var(--primary); margin-bottom:0.5rem; }
+  .portfolio-overlay p { color:var(--muted); font-size:0.9rem; margin-bottom:1rem; }
+  .portfolio-overlay .tag { font-size:0.75rem; letter-spacing:2px; color:var(--accent); text-transform:uppercase; }
+  .portfolio-placeholder {
+    width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+    font-size:3rem; background: linear-gradient(135deg, var(--bg2), rgba(0,245,255,0.05));
+  }
+
+  /* PORTFOLIO SLIDER */
+  .slider-controls { display:flex; gap:1rem; margin-top:2rem; justify-content:center; }
+  .slider-btn {
+    width:50px; height:50px; border:1px solid rgba(0,245,255,0.3); background:transparent;
+    color:var(--primary); font-size:1.2rem; cursor:pointer; transition:all 0.3s;
+    display:flex; align-items:center; justify-content:center;
+    clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+  }
+  .slider-btn:hover { background:rgba(0,245,255,0.1); box-shadow:var(--glow); }
+
+  /* LIGHTBOX */
+  .lightbox {
+    position:fixed; inset:0; background:rgba(2,8,24,0.97); z-index:999;
+    display:none; align-items:center; justify-content:center; padding:2rem;
+  }
+  .lightbox.active { display:flex; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .lightbox-content { max-width:800px; width:100%; text-align:center; position:relative; }
+  .lightbox-img { width:100%; border:1px solid rgba(0,245,255,0.3); margin-bottom:1.5rem; }
+  .lightbox-close {
+    position:absolute; top:-40px; right:0; background:none; border:none;
+    color:var(--primary); font-size:1.5rem; cursor:pointer; transition:color 0.3s;
+  }
+  .lightbox-close:hover { color:var(--accent); }
+  .lightbox-nav { display:flex; gap:1rem; justify-content:center; }
+
+  /* TEAM */
+  #team { background: var(--bg); }
+  .team-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:1.5rem; }
+  .team-card {
+    background:var(--card-bg); border:1px solid rgba(0,245,255,0.1);
+    padding:2rem; text-align:center; transition:all 0.4s;
+    clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+  }
+  .team-card:hover { border-color:rgba(0,245,255,0.4); transform:translateY(-6px); box-shadow:var(--glow); }
+  .team-avatar {
+    width:90px; height:90px; border-radius:50%; margin:0 auto 1.5rem;
+    border:2px solid var(--primary); display:flex; align-items:center; justify-content:center;
+    font-size:2.2rem; background:rgba(0,245,255,0.05);
+    box-shadow: 0 0 20px rgba(0,245,255,0.2);
+  }
+  .team-card h3 { font-family:'Orbitron',monospace; font-size:0.95rem; color:var(--text); margin-bottom:0.5rem; }
+  .team-card .role { color:var(--primary); font-size:0.85rem; letter-spacing:1px; text-transform:uppercase; margin-bottom:1rem; }
+  .team-card p { color:var(--muted); font-size:0.9rem; line-height:1.6; }
+
+  /* CONTACT */
+  #contact { background:var(--bg2); }
+  .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:4rem; max-width:1000px; }
+  .contact-info { display:flex; flex-direction:column; gap:1.5rem; }
+  .contact-item { display:flex; gap:1rem; align-items:flex-start; }
+  .contact-icon { font-size:1.5rem; color:var(--primary); flex-shrink:0; margin-top:2px; }
+  .contact-item h4 { font-size:0.8rem; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:0.3rem; }
+  .contact-item p { color:var(--text); font-size:1rem; }
+  .contact-form { display:flex; flex-direction:column; gap:1rem; }
+  .form-group input, .form-group textarea {
+    width:100%; background:rgba(0,245,255,0.03); border:1px solid rgba(0,245,255,0.15);
+    color:var(--text); padding:14px 16px; font-family:'Rajdhani',sans-serif; font-size:1rem;
+    outline:none; transition:border-color 0.3s;
+  }
+  .form-group textarea { height:120px; resize:vertical; }
+  .form-group input:focus, .form-group textarea:focus { border-color:var(--primary); box-shadow:0 0 10px rgba(0,245,255,0.1); }
+  .form-group input::placeholder, .form-group textarea::placeholder { color:var(--muted); }
+
+  /* FOOTER */
+  footer {
+    background:var(--bg); border-top:1px solid rgba(0,245,255,0.1);
+    padding:2rem 5%; text-align:center; color:var(--muted); font-size:0.9rem;
+  }
+  footer .footer-logo { font-family:'Orbitron',monospace; font-size:1.2rem; color:var(--primary); margin-bottom:1rem; }
+
+  /* SCROLL INDICATOR */
+  .scroll-progress {
+    position:fixed; top:70px; left:0; height:2px; background:var(--primary);
+    z-index:99; transition:width 0.1s; box-shadow:var(--glow);
+  }
+
+  /* ANIMATIONS ON SCROLL */
+  .reveal { opacity:0; transform:translateY(40px); transition:opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+
+  /* RESPONSIVE */
+  @media (max-width:768px) {
+    .nav-links { display:none; flex-direction:column; position:absolute; top:70px; left:0; width:100%; background:var(--bg); padding:1rem 5%; gap:1rem; border-bottom:1px solid rgba(0,245,255,0.1); }
+    .nav-links.open { display:flex; }
+    .hamburger { display:flex; }
+    .stats-grid { grid-template-columns:repeat(2,1fr); }
+    .contact-grid { grid-template-columns:1fr; gap:2rem; }
+    .hero h1 { font-size:2.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">APEX<span>CIFY</span></div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#portfolio">Portfolio</a></li>
+    <li><a href="#team">Team</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-orb orb1"></div>
+  <div class="hero-orb orb2"></div>
+  <div class="hero-content">
+    <div class="hero-badge">[ Next-Gen Technology Solutions ]</div>
+    <h1>
+      <span class="line1">Innovate Beyond</span>
+      <span class="line2">Boundaries</span>
+    </h1>
+    <p>We engineer digital futures — from cutting-edge web platforms to AI-powered solutions that transform businesses worldwide.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="document.getElementById('portfolio').scrollIntoView({behavior:'smooth'})">View Our Work</button>
+      <button class="btn-outline" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Get In Touch</button>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stats-grid">
+    <div><span class="stat-num" data-target="150">0</span><div class="stat-label">Projects Done</div></div>
+    <div><span class="stat-num" data-target="80">0</span><div class="stat-label">Happy Clients</div></div>
+    <div><span class="stat-num" data-target="12">0</span><div class="stat-label">Team Members</div></div>
+    <div><span class="stat-num" data-target="5">0</span><div class="stat-label">Years Active</div></div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-header reveal">
+    <div class="section-tag">// What We Do</div>
+    <h2 class="section-title">Our Services</h2>
+    <p class="section-sub">Comprehensive technology solutions tailored to accelerate your business growth.</p>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal"><div class="service-num">01</div><div class="service-icon">⚡</div><h3>Web Development</h3><p>High-performance websites and web apps built with modern frameworks. From concept to deployment.</p></div>
+    <div class="service-card reveal"><div class="service-num">02</div><div class="service-icon">📱</div><h3>Mobile Apps</h3><p>Native and cross-platform mobile applications for iOS and Android with seamless user experience.</p></div>
+    <div class="service-card reveal"><div class="service-num">03</div><div class="service-icon">🤖</div><h3>AI Solutions</h3><p>Machine learning models and AI integrations that automate processes and unlock insights.</p></div>
+    <div class="service-card reveal"><div class="service-num">04</div><div class="service-icon">☁️</div><h3>Cloud Services</h3><p>Scalable cloud infrastructure, DevOps pipelines, and managed services on AWS, Azure, GCP.</p></div>
+    <div class="service-card reveal"><div class="service-num">05</div><div class="service-icon">🎨</div><h3>UI/UX Design</h3><p>Human-centered design that combines aesthetics with functionality for maximum engagement.</p></div>
+    <div class="service-card reveal"><div class="service-num">06</div><div class="service-icon">🔒</div><h3>Cybersecurity</h3><p>Comprehensive security audits, penetration testing, and security architecture design.</p></div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <div class="section-header reveal">
+    <div class="section-tag">// Our Work</div>
+    <h2 class="section-title">Portfolio</h2>
+    <p class="section-sub">A selection of projects that showcase our expertise and creative vision.</p>
+  </div>
+  <div class="portfolio-nav reveal">
+    <button class="filter-btn active" onclick="filterPortfolio('all',this)">All</button>
+    <button class="filter-btn" onclick="filterPortfolio('web',this)">Web</button>
+    <button class="filter-btn" onclick="filterPortfolio('mobile',this)">Mobile</button>
+    <button class="filter-btn" onclick="filterPortfolio('ai',this)">AI</button>
+    <button class="filter-btn" onclick="filterPortfolio('design',this)">Design</button>
+  </div>
+  <div class="portfolio-grid" id="portfolioGrid">
+    <div class="portfolio-item" data-cat="web" onclick="openLightbox(0)"><div class="portfolio-placeholder">🌐</div><div class="portfolio-overlay"><h3>E-Commerce Platform</h3><p>Full-stack online store with real-time inventory</p><span class="tag">Web Development</span></div></div>
+    <div class="portfolio-item" data-cat="mobile" onclick="openLightbox(1)"><div class="portfolio-placeholder">📱</div><div class="portfolio-overlay"><h3>HealthTrack App</h3><p>Personal health monitoring mobile application</p><span class="tag">Mobile</span></div></div>
+    <div class="portfolio-item" data-cat="ai" onclick="openLightbox(2)"><div class="portfolio-placeholder">🤖</div><div class="portfolio-overlay"><h3>AI Chatbot System</h3><p>Customer service automation with NLP</p><span class="tag">AI / ML</span></div></div>
+    <div class="portfolio-item" data-cat="design" onclick="openLightbox(3)"><div class="portfolio-placeholder">🎨</div><div class="portfolio-overlay"><h3>Brand Identity</h3><p>Complete visual identity for fintech startup</p><span class="tag">Design</span></div></div>
+    <div class="portfolio-item" data-cat="web" onclick="openLightbox(4)"><div class="portfolio-placeholder">📊</div><div class="portfolio-overlay"><h3>Analytics Dashboard</h3><p>Real-time business intelligence platform</p><span class="tag">Web Development</span></div></div>
+    <div class="portfolio-item" data-cat="mobile" onclick="openLightbox(5)"><div class="portfolio-placeholder">🚀</div><div class="portfolio-overlay"><h3>Delivery App</h3><p>On-demand logistics and tracking platform</p><span class="tag">Mobile</span></div></div>
+  </div>
+  <div class="slider-controls reveal">
+    <button class="slider-btn" onclick="slidePortfolio(-1)">&#8592;</button>
+    <button class="slider-btn" onclick="slidePortfolio(1)">&#8594;</button>
+  </div>
+</section>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-content">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <div class="portfolio-placeholder lightbox-img" id="lightboxImg" style="height:300px;font-size:5rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,245,255,0.3);"></div>
+    <h3 id="lightboxTitle" style="font-family:'Orbitron',monospace;color:var(--primary);margin-bottom:0.5rem;"></h3>
+    <p id="lightboxDesc" style="color:var(--muted);margin-bottom:1.5rem;"></p>
+    <div class="lightbox-nav">
+      <button class="slider-btn" onclick="lightboxNav(-1)">&#8592;</button>
+      <button class="slider-btn" onclick="lightboxNav(1)">&#8594;</button>
+    </div>
+  </div>
+</div>
+
+<!-- TEAM -->
+<section id="team">
+  <div class="section-header reveal">
+    <div class="section-tag">// The Crew</div>
+    <h2 class="section-title">Meet Our Team</h2>
+    <p class="section-sub">Brilliant minds working together to build extraordinary technology.</p>
+  </div>
+  <div class="team-grid">
+    <div class="team-card reveal"><div class="team-avatar">👨‍💻</div><h3>Alex Rahman</h3><div class="role">CEO & Founder</div><p>Visionary leader with 10+ years in tech entrepreneurship.</p></div>
+    <div class="team-card reveal"><div class="team-avatar">👩‍🎨</div><h3>Sara Malik</h3><div class="role">Lead Designer</div><p>Creative director specializing in user-centered design systems.</p></div>
+    <div class="team-card reveal"><div class="team-avatar">👨‍🔬</div><h3>Omar Farouk</h3><div class="role">AI Engineer</div><p>ML expert building intelligent solutions that scale globally.</p></div>
+    <div class="team-card reveal"><div class="team-avatar">👩‍💻</div><h3>Zara Ahmed</h3><div class="role">Full Stack Dev</div><p>Architecture specialist in modern web and cloud technologies.</p></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-header reveal">
+    <div class="section-tag">// Let's Connect</div>
+    <h2 class="section-title">Get In Touch</h2>
+    <p class="section-sub">Ready to start your next project? We'd love to hear from you.</p>
+  </div>
+  <div class="contact-grid">
+    <div class="contact-info reveal">
+      <div class="contact-item"><div class="contact-icon">📍</div><div><h4>Location</h4><p>Lahore, Pakistan</p></div></div>
+      <div class="contact-item"><div class="contact-icon">📧</div><div><h4>Email</h4><p>hello@apexcify.com</p></div></div>
+      <div class="contact-item"><div class="contact-icon">📞</div><div><h4>Phone</h4><p>+92 300 000 0000</p></div></div>
+      <div class="contact-item"><div class="contact-icon">🕐</div><div><h4>Hours</h4><p>Mon – Fri, 9 AM – 6 PM PKT</p></div></div>
+    </div>
+    <div class="contact-form reveal">
+      <div class="form-group"><input type="text" placeholder="Your Name"></div>
+      <div class="form-group"><input type="email" placeholder="Email Address"></div>
+      <div class="form-group"><input type="text" placeholder="Subject"></div>
+      <div class="form-group"><textarea placeholder="Your Message..."></textarea></div>
+      <button class="btn-primary" style="width:100%;padding:16px">Send Message →</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">APEX<span style="color:var(--accent)">CIFY</span> Technologies</div>
+  <p>© 2025 Apexcify Technologies. All rights reserved. Built with ⚡ and passion.</p>
+</footer>
+
+<script>
+  // HAMBURGER
+  function toggleMenu() {
+    document.getElementById('navLinks').classList.toggle('open');
+  }
+
+  // SCROLL PROGRESS
+  window.addEventListener('scroll', () => {
+    const scrolled = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+    document.getElementById('scrollProgress').style.width = scrolled + '%';
+  });
+
+  // REVEAL ON SCROLL
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+
+  // COUNT UP ANIMATION
+  const counters = document.querySelectorAll('[data-target]');
+  const countObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const target = +el.dataset.target;
+        let count = 0;
+        const step = target / 60;
+        const interval = setInterval(() => {
+          count += step;
+          if (count >= target) { el.textContent = target + '+'; clearInterval(interval); }
+          else el.textContent = Math.floor(count) + '+';
+        }, 25);
+        countObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => countObserver.observe(c));
+
+  // PORTFOLIO FILTER
+  function filterPortfolio(cat, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.portfolio-item').forEach(item => {
+      const show = cat === 'all' || item.dataset.cat === cat;
+      item.style.display = show ? 'block' : 'none';
+      if (show) { item.style.animation = 'fadeUp 0.4s ease both'; }
+    });
+  }
+
+  // PORTFOLIO SLIDER
+  let sliderOffset = 0;
+  const portfolioData = [
+    { icon:'🌐', title:'E-Commerce Platform', desc:'Full-stack online store with real-time inventory management and payment gateway integration.' },
+    { icon:'📱', title:'HealthTrack App', desc:'Personal health monitoring app with wearable integration and AI-powered insights.' },
+    { icon:'🤖', title:'AI Chatbot System', desc:'Intelligent customer service automation using NLP with multi-language support.' },
+    { icon:'🎨', title:'Brand Identity', desc:'Complete visual identity system for a fintech startup including logo, colors, and typography.' },
+    { icon:'📊', title:'Analytics Dashboard', desc:'Real-time business intelligence platform with interactive charts and custom reports.' },
+    { icon:'🚀', title:'Delivery App', desc:'On-demand logistics platform with live tracking and driver management system.' }
+  ];
+  function slidePortfolio(dir) {
+    const items = document.querySelectorAll('.portfolio-item');
+    sliderOffset = (sliderOffset + dir + items.length) % items.length;
+    items.forEach((item, i) => {
+      item.style.order = ((i - sliderOffset + items.length) % items.length).toString();
+    });
+  }
+
+  // LIGHTBOX
+  let currentLightbox = 0;
+  function openLightbox(idx) {
+    currentLightbox = idx;
+    updateLightbox();
+    document.getElementById('lightbox').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  function lightboxNav(dir) {
+    currentLightbox = (currentLightbox + dir + portfolioData.length) % portfolioData.length;
+    updateLightbox();
+  }
+  function updateLightbox() {
+    const d = portfolioData[currentLightbox];
+    document.getElementById('lightboxImg').textContent = d.icon;
+    document.getElementById('lightboxTitle').textContent = d.title;
+    document.getElementById('lightboxDesc').textContent = d.desc;
+  }
+  document.getElementById('lightbox').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('lightbox')) closeLightbox();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') lightboxNav(-1);
+    if (e.key === 'ArrowRight') lightboxNav(1);
+  });
+</script>
+</body>
+</html>
